@@ -36,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _timeOn = false;
   bool _reset = false;
   bool _stop = true;
+  bool _start = true;
   final _laps = <int>[];
 
   void _incrementCount(Timer time) {
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
         seconds = 0;
         _timeOn = true;
         _reset = !_reset;
-        _laps.clear();
+        _start = !_start;
       },
     );
   }
@@ -63,6 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
       seconds = 0;
       _reset = !_reset;
       _stop = true;
+      _start = !_start;
+      _laps.clear();
     });
   }
 
@@ -166,77 +169,84 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Row _buildButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Visibility(
-          visible: _reset ? false : true,
-          child: ElevatedButton(
+  Widget _buildButtons() {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Visibility(
+            visible: _reset ? false : true,
+            child: ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
               ),
               onPressed: _timeOn ? null : _startFunction,
-              child: const Text('Start')),
-        ),
-        Visibility(
-          visible: _reset && !_stop ? true : false,
-          child: ElevatedButton(
+              child: const Text('Start'),
+            ),
+          ),
+          Visibility(
+            visible: _reset && !_stop ? true : false,
+            child: ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
               ),
               onPressed: _timeOn ? null : _resetFunction,
-              child: const Text('Reset')),
-        ),
-        Visibility(
-          visible: _stop && seconds != 0,
-          child: ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              child: const Text('Reset'),
             ),
-            onPressed: _timeOn ? _lapFunction : null,
-            child: const Text('Lap'),
           ),
-        ),
-        Visibility(
-          visible: seconds != 0 && !_stop ? true : false,
-          child: ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          Visibility(
+            visible: _stop && !_start,
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
+              onPressed: _timeOn ? _lapFunction : null,
+              child: const Text('Lap'),
             ),
-            onPressed: _timeOn ? null : _resumeFunction,
-            child: const Text('Resume'),
           ),
-        ),
-        Visibility(
-          visible: _stop,
-          child: ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          const SizedBox(width: 60),
+          Visibility(
+            visible: seconds != 0 && !_stop ? true : false,
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
+              onPressed: _timeOn ? null : _resumeFunction,
+              child: const Text('Resume'),
             ),
-            onPressed: _timeOn ? _stopFunction : null,
-            child: const Text('Stop'),
           ),
-        ),
-      ],
+          Visibility(
+            visible: _stop,
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
+              onPressed: _timeOn ? _stopFunction : null,
+              child: const Text('Stop'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _lapDisplay() {
-    return ListView(
-      children: [
-        for (int i in _laps)
-          ListTile(
-            title: Text(
-                'Lap ${_laps.indexOf(i) + 1}: ${_hours(i)}:${_minutes(i)}:${_seconds(i)}'),
-          )
-      ],
+    return Scrollbar(
+      thumbVisibility: true,
+      child: ListView(
+        children: [
+          for (int i in _laps)
+            ListTile(
+              title: Text(
+                  'Lap ${_laps.indexOf(i) + 1}: ${_hours(i)}:${_minutes(i)}:${_seconds(i)}'),
+            )
+        ],
+      ),
     );
   }
 }
